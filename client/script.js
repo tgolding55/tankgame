@@ -9,8 +9,10 @@ ctx.font = "30px Arial"
 socket.on('newPosition', function(pack){
     ctx.clearRect(0,0,500,500)
 
-    for(let i = 0; i<pack.player.length; i++){        
+    for(let i = 0; i<pack.player.length; i++){
+
         ctx.drawImage(blueTank, pack.player[i].x, pack.player[i].y, 100, 100)
+        
     }
 })
 
