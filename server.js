@@ -3,6 +3,7 @@ const app = express();
 const server = require('http').createServer(app);
 let SOCKET_LIST = {}
 let Player = require('./server/player')
+let Missile = require('./server/missile')
 
 //routes
 app.get('/', function(req, res){
@@ -40,7 +41,8 @@ io.on('connection', function(socket){
   
   setInterval(function(){
       let pack ={
-          player:Player.update()
+          player:Player.update(),
+          missile:Missile.update()
       }
 
       for(let i in SOCKET_LIST){

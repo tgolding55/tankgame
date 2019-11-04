@@ -1,13 +1,13 @@
 module.exports = Entity
 
-function Entity(id){
+function Entity(id,x,y,speed,directionAngle){
     this.id = id
 
-    this.x = 250
-    this.y = 250
+    this.x = x
+    this.y = y
 
-    this.speed = 0
-    this.maxSpeed = 10
+    this.speed = speed
+    
 
-    this.directionAngle = 0
+    this.directionAngle = directionAngle
 }

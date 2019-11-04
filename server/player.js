@@ -1,9 +1,13 @@
 module.exports = Player
 let Entity = require('./entity')
+let Missile = require('./missile')
 
 
 function Player(socketId){
-    Entity.call(this, socketId)
+    Entity.call(this, socketId, 250, 250, 10, 0)
+
+    this.maxSpeed = 10
+    this.reloaded = true
 
     this.pressingLeft = false
     this.pressingUp = false
@@ -43,8 +47,19 @@ function Player(socketId){
             this.directionAngle -= this.turnSpeed
         }
     }
+
     this.fireShot = function(){
-        
+        if(this.pressingAttack && this.reloaded){
+        new Missile(Math.random(), this.x, this.y, this.directionAngle)
+        this.reloaded = false
+        this.shotTimer()
+        }
+    }
+
+    this.shotTimer = function(){
+        setTimeout(() => {
+            this.reloaded = true
+        }, 1000);
     }
 }
 Player.list = {}
