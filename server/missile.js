@@ -1,10 +1,15 @@
 module.exports = Missile
 let Entity = require('./entity')
 
-function Missile(id,x,y,directionAngle){
-    Entity.call(this, id,x,y, 12.5,directionAngle)
-    console.log(x,y,directionAngle)
+function Missile(x,y,directionAngle){
+    Entity.call(this,x,y, 20,directionAngle)
     this.lifeTime = 5
+    this.collidable = false
+    this.height = 25
+    this.width = 25
+    setTimeout(() => {
+        this.collidable = true
+    }, 250);
 
 
 
@@ -18,9 +23,8 @@ function Missile(id,x,y,directionAngle){
     }
 
    
-
+    
     Missile.list[this.id] = this
-
     setTimeout(() => {
         delete Missile.list[this.id] 
     }, this.lifeTime * 1000);
@@ -35,10 +39,8 @@ Missile.update = function(){
         const missile = Missile.list[i]
         missile.update()
         pack.push({
-            id: missile.id,
             x: missile.x,
             y: missile.y,
-            directionAngle: missile.directionAngle,
         })
     }
     return pack

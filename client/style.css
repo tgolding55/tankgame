@@ -5,8 +5,7 @@ body{
 }
 
 #game{
-    
-    background-color: white;
-    
+background: radial-gradient(ellipse at center, #cedce7 75%,#596a72 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+border: 10px solid black; 
 }
 

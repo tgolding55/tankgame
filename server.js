@@ -1,9 +1,12 @@
+
 const express = require('express')
 const app = express();
 const server = require('http').createServer(app);
 let SOCKET_LIST = {}
 let Player = require('./server/player')
 let Missile = require('./server/missile')
+let Entity = require('./server/entity')
+
 
 //routes
 app.get('/', function(req, res){
@@ -30,7 +33,10 @@ io.on('connection', function(socket){
      
     socket.on('disconnect', function(){
         delete SOCKET_LIST[socket.id]
+        if(Player.list[socket.id]){
+        delete Entity.list[Player.list[socket.id].id]
         delete Player.list[socket.id]
+        }
         console.log('user disconnected');
     });
   });
@@ -40,6 +46,8 @@ io.on('connection', function(socket){
   //packet management
   
   setInterval(function(){
+      Entity.checkAllCollisions()
+
       let pack ={
           player:Player.update(),
           missile:Missile.update()

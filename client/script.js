@@ -10,14 +10,13 @@ const canvas = document.querySelector("#game")
 const ctx = canvas.getContext("2d");
 
 socket.on('newPosition', function(pack){
-    ctx.clearRect(0,0,500,500)
-
+    ctx.clearRect(0,0,1250,600)
     for(let i = 0; i<pack.player.length; i++){
         drawTank(blueTank, pack.player[i].x, pack.player[i].y, 100, 100, pack.player[i].directionAngle +90)
     }
 
     for(let i = 0; i<pack.missile.length; i++){
-        drawMissile(missile, pack.missile[i].x , pack.missile[i].y, 25, 25, pack.missile[i].directionAngle +90)
+        drawMissile(missile, pack.missile[i].x , pack.missile[i].y, 25, 25)
     }
 
     function drawTank(img,x,y,width,height,deg){
@@ -26,9 +25,10 @@ socket.on('newPosition', function(pack){
         ctx.translate(x, y);
         ctx.rotate(rad);
         ctx.drawImage(img,(width / 2 * (-1))+25,(height / 2 * (-1))+25,width,height);
-        drawTurret(blueTurret, (width / 2 * (-1))+31.25, (height / 2 * (-1))+11, width/2, height)
+        drawTurret(blueTurret, (width / 2 * (-1))+31.25, (height / 2 * (-1))+11.25, width/2, height)
         ctx.restore();
     }
+
 
     function drawTurret(img,x,y,width,height){
         ctx.save()
@@ -37,11 +37,9 @@ socket.on('newPosition', function(pack){
         ctx.restore();
     }
 
-    function drawMissile(img,x,y,width,height,deg){
+    function drawMissile(img,x,y,width,height){
         ctx.save()
-        const rad = deg * Math.PI / 180;
         ctx.translate(x , y);
-        ctx.rotate(rad);
         ctx.drawImage(img,(width / 2 * (-1))+6.25,(height / 2 * (-1))+6.25,width,height);
         ctx.restore();    
     }

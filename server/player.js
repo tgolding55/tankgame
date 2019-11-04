@@ -2,12 +2,22 @@ module.exports = Player
 let Entity = require('./entity')
 let Missile = require('./missile')
 
+let spawnPoints = [{x:75,y:75}, {x:75, y:525},{x:1175,y:75}, {x:1175, y:525}]
+let spawnCount = 0
 
-function Player(socketId){
-    Entity.call(this, socketId, 250, 250, 10, 0)
-
+function Player(socket){
+    spawn = spawnPoints[spawnCount]
+    spawnCount >= 3 ? spawnCount= 0: spawnCount++
+    Entity.call(this, spawn.x, spawn.y, 10, 270)
+   
+    this.socket = socket
     this.maxSpeed = 10
     this.reloaded = true
+
+    this.collidable = true //temp
+
+    this.width = 100
+    this.height = 100
 
     this.pressingLeft = false
     this.pressingUp = false
@@ -19,7 +29,7 @@ function Player(socketId){
 
     this.turnSpeed = 10
 
-    Player.list[socketId] = this
+    Player.list[socket.id] = this
 
     this.update = function(){
         this.updateSpd()
@@ -50,7 +60,7 @@ function Player(socketId){
 
     this.fireShot = function(){
         if(this.pressingAttack && this.reloaded){
-        new Missile(Math.random(), this.x, this.y, this.directionAngle)
+        new Missile(this.x, this.y, this.directionAngle)
         this.reloaded = false
         this.shotTimer()
         }
@@ -61,14 +71,19 @@ function Player(socketId){
             this.reloaded = true
         }, 1000);
     }
+
+    this.die = function(){
+        Player.respawn(this.socket)
+        delete Player.list[this.socket.id]
+    }
 }
 Player.list = {}
 
 Player.onConnect = function(socket){
-    let player = new Player(socket.id)
-    
+    let player = new Player(socket)
     socket.on('keyPress', function(packet){
         player = Player.list[socket.id]    
+        if(player){
         switch(packet.inputId){
             case 'right':
                     player.pressingRight = packet.state
@@ -83,7 +98,7 @@ Player.onConnect = function(socket){
                     player.pressingDown = packet.state
                 break
             case 'attack':
-                player.pressingAttack = packet.state
+                    player.pressingAttack = packet.state
                 break
                 /*
             case 'mouseAngle':
@@ -92,6 +107,7 @@ Player.onConnect = function(socket){
                 */
         
         }
+    }
     })
 }
 
@@ -100,13 +116,21 @@ Player.update = function(){
 
     for(let i in Player.list){
         const player = Player.list[i]
+        if(player){
         player.update()
+        
         pack.push({
-            id: player.id,
             x: player.x,
             y: player.y,
             directionAngle: player.directionAngle,
         })
     }
+    }
     return pack
+}
+
+Player.respawn = function(socket){
+    setTimeout(() => {
+        Player.onConnect(socket)
+    }, 2500);
 }
