@@ -1,18 +1,36 @@
 
 document.addEventListener("DOMContentLoaded", function(){
-    const socket = io()
+const socket = io()
 
 const blueTank = document.querySelector("#blueTank")
+const blueTurret = document.querySelector("#blueTurret")
 const canvas = document.querySelector("#game")
 const ctx = canvas.getContext("2d");
-ctx.font = "30px Arial"
+
 socket.on('newPosition', function(pack){
     ctx.clearRect(0,0,500,500)
 
     for(let i = 0; i<pack.player.length; i++){
-
-        ctx.drawImage(blueTank, pack.player[i].x, pack.player[i].y, 100, 100)
+        drawImageRot(blueTank, pack.player[i].x, pack.player[i].y, 100, 100, pack.player[i].directionAngle +90)
         
+        
+    }
+
+    function drawImageRot(img,x,y,width,height,deg){
+        ctx.save()
+        var rad = deg * Math.PI / 180;
+        ctx.translate(x + width / 2, y + height / 2);
+        ctx.rotate(rad);
+        ctx.drawImage(img,(width / 2 * (-1))+25 ,(height / 2 * (-1))+25,width,height);
+        drawTurret(blueTurret, (width / 2 * (-1))+31.25, (height / 2 * (-1))+11, width/2, height)
+        ctx.restore();
+    }
+
+    function drawTurret(img,x,y,width,height,deg){
+        ctx.save()
+        ctx.translate(x + width / 2, y + height / 2);
+        ctx.drawImage(img,(width / 2 * (-1)),(height / 2 * (-1)),width,height);
+        ctx.restore();
     }
 })
 
@@ -29,6 +47,9 @@ document.onkeydown = function(e){
             break
         case 87:
             socket.emit('keyPress', {inputId:'up', state:true})
+            break
+        case 32:
+            socket.emit('keyPress', {inputId:'attack', state:true})
             break
     }
 }
@@ -47,22 +68,20 @@ document.onkeyup = function(e){
         case 87:
             socket.emit('keyPress', {inputId:'up', state:false})
             break
+        case 32:
+            socket.emit('keyPress', {inputId:'attack', state:false})
+            break
     }
 }
 
-document.onmousedown = function(event){
-    socket.emit('keyPress', {inputId:'attack', state: true})
-}
-document.onmouseup = function(event){
-    socket.emit('keyPress', {inputId:'attack', state: false})
-}
 
+/*
 document.onmousemove = function(event){
     let x = -250 + event.clientX - 8;
     let y = -250 + event.clientY - 8;
     let angle = Math.atan2(y,x) / Math.PI * 180;
     socket.emit('keyPress', {inputId:'mouseAngle', state:angle})
-}
+}*/
 
 
 })

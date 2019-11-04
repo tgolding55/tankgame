@@ -1,49 +1,51 @@
 module.exports = Player
+let Entity = require('./entity')
+
 
 function Player(socketId){
-    this.id = socketId
-    this.x = 250
-    this.y = 250
+    Entity.call(this, socketId)
+
     this.pressingLeft = false
     this.pressingUp = false
     this.pressingDown = false
     this.pressingRight = false
-    this.spdX = 0
-    this.spdY = 0
-    this.maxSpd =10
-    this.mouseAngle = 0 
+
+    //this.mouseAngle = 0
     this.pressingAttack = false
+
+    this.turnSpeed = 10
 
     Player.list[socketId] = this
 
     this.update = function(){
         this.updateSpd()
         this.applySpd()
+        this.fireShot()
     }
     this.applySpd = function(){
-        this.y += this.spdY
-        this.x += this.spdX
+        this.x += this.speed * Math.cos(Math.PI/180 * this.directionAngle);
+        this.y += this.speed * Math.sin(Math.PI/180 * this.directionAngle);
     }
 
     this.updateSpd = function(){
         
         if(this.pressingDown){
-            this.spdY = this.maxSpd
+            this.speed = -this.maxSpeed
         }else if(this.pressingUp){
-            this.spdY = -this.maxSpd
+            this.speed = +this.maxSpeed
         }else{
-            this.spdY = 0
+            this.speed = 0
         }
 
         if(this.pressingRight){
-            this.spdX = this.maxSpd
+            this.directionAngle += this.turnSpeed
         } else if(this.pressingLeft){
-            this.spdX = -this.maxSpd
-        } else{
-            this.spdX = 0
+            this.directionAngle -= this.turnSpeed
         }
     }
-    
+    this.fireShot = function(){
+        
+    }
 }
 Player.list = {}
 
@@ -68,9 +70,11 @@ Player.onConnect = function(socket){
             case 'attack':
                 player.pressingAttack = packet.state
                 break
+                /*
             case 'mouseAngle':
                 player.mouseAngle = packet.state
                 break
+                */
         
         }
     })
@@ -85,7 +89,8 @@ Player.update = function(){
         pack.push({
             id: player.id,
             x: player.x,
-            y: player.y
+            y: player.y,
+            directionAngle: player.directionAngle,
         })
     }
     return pack
