@@ -18,7 +18,7 @@ socket.on('loadMap', function(pack){
 function drawMap(){
     
     curMap.forEach(mapObject =>{
-        ctx.fillRect(mapObject.x, mapObject.y, mapObject.width, mapObject.height)
+        ctx.fillRect(mapObject.x-mapObject.width/2, mapObject.y-mapObject.height/2 , mapObject.width, mapObject.height)
 
     })
 }

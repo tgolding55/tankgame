@@ -2,14 +2,14 @@ module.exports = Missile
 let Entity = require('./entity')
 
 function Missile(x,y,directionAngle){
-    Entity.call(this,x,y, 30,directionAngle)
+    Entity.call(this,x,y, 20,directionAngle)
     this.lifeTime = 5
     this.collidable = false
     this.height = 25
     this.width = 25
     setTimeout(() => {
         this.collidable = true
-    }, 150);
+    }, 225);
 
 
 

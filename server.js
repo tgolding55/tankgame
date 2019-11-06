@@ -21,7 +21,7 @@ app.use('/client', express.static('client'))
 server.listen(3000, function(){
   console.log('listening on *:3000');
 
-  new MapObject(100,300,300, 40)
+  new MapObject(300,300,200, 100)
 });
 
 

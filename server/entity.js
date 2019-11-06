@@ -21,18 +21,12 @@ function Entity(x,y,speed,directionAngle){
     this.checkCollision = function(){
         for(let index in Entity.list){
             if(Entity.list[index] !== this && Entity.list[index].collidable === true && this.collidable === true){
-                if(this instanceof Player){
-                if((Entity.list[index].x > this.x-this.width/2 && Entity.list[index].x < this.x+this.width/2 && Entity.list[index].y > this.y-this.height/2 && Entity.list[index].y < this.y+this.height/2)){
-                    this.collide(Entity.list[index])
-                    
-                }
-            }else if(this instanceof MapObject){
-                console.log( this.y-this.height,Entity.list[index].y,this.y+this.height)
-                if((Entity.list[index].x >= this.x-this.width && Entity.list[index].x <= this.x+this.width && Entity.list[index].y >= this.y-this.height && Entity.list[index].y <= this.y+this.height)){
+               
+                if(Entity.list[index].x > this.x-this.width/2 && Entity.list[index].x < this.x+this.width/2 && Entity.list[index].y > this.y-this.height/2 && Entity.list[index].y < this.y+this.height/2){
                     this.collide(Entity.list[index])
                 }
             }
-            } 
+             
         }
     }
 
@@ -48,9 +42,18 @@ function Entity(x,y,speed,directionAngle){
             delete Entity.list[entity.id]  
         }else if (this instanceof MapObject && entity instanceof Player){ // temp
             console.log("collide")
-        } else if (this instanceof MapObject && entity instanceof Missile){
+            
+        } else if (entity instanceof Missile){
             console.log('hit')
-            entity.directionAngle = entity.angleReflect(this.directionAngle)
+            entity.directionAngle = entity.angleReflect(entity.findSide(this))
+        }
+    }
+    this.findSide = function(wall){
+        console.log(Math.ceil((wall.x - wall.width/2)/10)*10 , Math.ceil((this.x - this.width/2)/10)*10,  Math.ceil((wall.x +wall.width/2)/10)*10 , Math.ceil((this.x + this.width/2)/10)*10)
+        if(Math.ceil((wall.x - wall.width/2)/10)*10 === Math.ceil((this.x - this.width/2)/10)*10 || Math.ceil((wall.x +wall.width/2)/10)*10 === Math.ceil((this.x + this.width/2)/10)*10){
+            return 90
+        } else {
+            return 0
         }
     }
 }
