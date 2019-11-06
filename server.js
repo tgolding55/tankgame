@@ -6,6 +6,7 @@ let SOCKET_LIST = {}
 let Player = require('./server/player')
 let Missile = require('./server/missile')
 let Entity = require('./server/entity')
+let MapObject = require('./server/mapobject')
 
 
 //routes
@@ -19,6 +20,8 @@ app.use('/client', express.static('client'))
 //server setup
 server.listen(3000, function(){
   console.log('listening on *:3000');
+
+  new MapObject(100,300,300, 40)
 });
 
 
@@ -29,6 +32,7 @@ io.on('connection', function(socket){
      SOCKET_LIST[socket.id] = socket
 
      Player.onConnect(socket)
+     loadMap(socket)
      console.log('user connected')
      
     socket.on('disconnect', function(){
@@ -41,13 +45,20 @@ io.on('connection', function(socket){
     });
   });
 
-
-
   //packet management
+
+
+  function loadMap(socket){
+
+    let mapPacket = []
+    for(let i in MapObject.list){
+      mapPacket.push({x: MapObject.list[i].x, y:MapObject.list[i].y ,width:MapObject.list[i].width ,height:MapObject.list[i].height})
+    }
+    socket.emit('loadMap', mapPacket)
+  }
   
   setInterval(function(){
       Entity.checkAllCollisions()
-
       let pack ={
           player:Player.update(),
           missile:Missile.update()

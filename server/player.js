@@ -1,20 +1,17 @@
 module.exports = Player
 let Entity = require('./entity')
 let Missile = require('./missile')
-
 let spawnPoints = [{x:75,y:75}, {x:75, y:525},{x:1175,y:75}, {x:1175, y:525}]
 let spawnCount = 0
 
 function Player(socket){
     spawn = spawnPoints[spawnCount]
-    spawnCount >= 3 ? spawnCount= 0: spawnCount++
+    spawnCount >= 3 ? spawnCount = 0: spawnCount++
     Entity.call(this, spawn.x, spawn.y, 10, 270)
    
     this.socket = socket
     this.maxSpeed = 10
     this.reloaded = true
-
-    this.collidable = true //temp
 
     this.width = 100
     this.height = 100
@@ -69,7 +66,7 @@ function Player(socket){
     this.shotTimer = function(){
         setTimeout(() => {
             this.reloaded = true
-        }, 1000);
+        }, 500);
     }
 
     this.die = function(){

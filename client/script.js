@@ -8,9 +8,25 @@ const blueTurret = document.querySelector("#blueTurret")
 const missile = document.querySelector("#missile")
 const canvas = document.querySelector("#game")
 const ctx = canvas.getContext("2d");
+let curMap = []
+
+socket.on('loadMap', function(pack){    
+    curMap = pack
+    drawMap()
+})
+
+function drawMap(){
+    
+    curMap.forEach(mapObject =>{
+        ctx.fillRect(mapObject.x, mapObject.y, mapObject.width, mapObject.height)
+
+    })
+}
+
 
 socket.on('newPosition', function(pack){
     ctx.clearRect(0,0,1250,600)
+    drawMap()
     for(let i = 0; i<pack.player.length; i++){
         drawTank(blueTank, pack.player[i].x, pack.player[i].y, 100, 100, pack.player[i].directionAngle +90)
     }
