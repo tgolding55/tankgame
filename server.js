@@ -3,6 +3,7 @@ const express = require('express')
 const app = express();
 const server = require('http').createServer(app);
 let SOCKET_LIST = {}
+
 let Player = require('./server/player')
 let Missile = require('./server/missile')
 let Entity = require('./server/entity')

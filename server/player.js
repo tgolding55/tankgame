@@ -73,6 +73,11 @@ function Player(socket){
         Player.respawn(this.socket)
         delete Player.list[this.socket.id]
     }
+
+    this.reverseSpeed = function(){
+        this.x += -this.speed * Math.cos(Math.PI/180 * this.directionAngle);
+        this.y += -this.speed * Math.sin(Math.PI/180 * this.directionAngle);
+    }
 }
 Player.list = {}
 
