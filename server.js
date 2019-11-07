@@ -4,6 +4,7 @@ const app = express();
 const server = require('http').createServer(app);
 let SOCKET_LIST = {}
 
+let GameMaster = require('./server/gameMaster')
 let Player = require('./server/player')
 let Missile = require('./server/missile')
 let Entity = require('./server/entity')
@@ -22,7 +23,7 @@ app.use('/client', express.static('client'))
 server.listen(3000, function(){
   console.log('listening on *:3000');
 
-  new MapObject(300,300,200, 100)
+  new GameMaster()
 });
 
 

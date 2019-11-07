@@ -29,15 +29,16 @@ function Entity(x,y,speed,directionAngle){
              
         }
         if(this instanceof Missile){
-            if(this.y >= 600){
-                this.directionAngle = this.angleReflect(0)
-            }else if(this.y <= 0){
+            if(this.y >= 600 || this.y <= 0){
                 this.directionAngle = this.angleReflect(0)
             }
-            if(this.x <= 0){
+            if(this.x <= 0 || this.x >= 1250){
                 this.directionAngle = this.angleReflect(90)
-            }else if(this.x >= 1250){
-                this.directionAngle = this.angleReflect(90)
+            }
+        }
+        if(this instanceof Player){
+            if(this.y >= 600 || this.y <= 0 || this.x <= 0 || this.x >= 1250){
+                this.reverseSpeed()
             }
         }
     }
@@ -53,15 +54,12 @@ function Entity(x,y,speed,directionAngle){
             delete Player.list[entity.socket.id].die(this.socket)
             delete Entity.list[entity.id]  
         }else if (this instanceof MapObject && entity instanceof Player){ // temp
-            console.log("collide")
             entity.reverseSpeed()
         } else if (entity instanceof Missile){
-            console.log('hit')
             entity.directionAngle = entity.angleReflect(entity.findSide(this))
         }
     }
     this.findSide = function(wall){
-        console.log(Math.ceil((wall.x - wall.width/2)/10)*10 , Math.ceil((this.x - this.width/2)/10)*10,  Math.ceil((wall.x +wall.width/2)/10)*10 , Math.ceil((this.x + this.width/2)/10)*10)
         if(Math.ceil((wall.x - wall.width/2)/10)*10 === Math.ceil((this.x - this.width/2)/10)*10 || Math.ceil((wall.x +wall.width/2)/10)*10 === Math.ceil((this.x + this.width/2)/10)*10){
             return 90
         } else {
