@@ -1,4 +1,5 @@
 module.exports = GameMaster
+
 let Player = require('./player')
 let Missile = require('./missile')
 let Entity = require('./entity')
@@ -19,5 +20,4 @@ function GameMaster(){
     new MapObject(950, 525,50, 150)
 
 
-    
 }

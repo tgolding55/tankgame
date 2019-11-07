@@ -40,6 +40,7 @@ io.on('connection', function(socket){
     socket.on('disconnect', function(){
         delete SOCKET_LIST[socket.id]
         if(Player.list[socket.id]){
+        Player.colour.push(Player.list[socket.id].colour)
         delete Entity.list[Player.list[socket.id].id]
         delete Player.list[socket.id]
         }
