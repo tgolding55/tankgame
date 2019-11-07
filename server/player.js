@@ -13,6 +13,7 @@ function Player(socket, colour){
     this.maxSpeed = 10
     this.reloaded = true
     this.colour = colour
+    this.alive = true
 
     this.width = 100
     this.height = 100
@@ -33,6 +34,7 @@ function Player(socket, colour){
         this.updateSpd()
         this.applySpd()
         this.fireShot()
+        this.checkAlive()
     }
     this.applySpd = function(){
         this.x += this.speed * Math.cos(Math.PI/180 * this.directionAngle);
@@ -69,9 +71,16 @@ function Player(socket, colour){
             this.reloaded = true
         }, 500);
     }
+    
+    this.checkAlive = function(){
+        if(!this.alive){
+            this.die()
+        }
+    }
 
     this.die = function(){
         Player.respawn(this.socket)
+        Player.colour.push(Player.list[socket.id].colour)
         delete Player.list[this.socket.id]
     }
 
@@ -137,6 +146,8 @@ Player.update = function(){
 
 Player.respawn = function(socket){
     setTimeout(() => {
+        if(socket.connected){
         Player.onConnect(socket)
+        }
     }, 2500);
 }

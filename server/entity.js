@@ -45,14 +45,14 @@ function Entity(x,y,speed,directionAngle){
 
     this.collide = function(entity){
         if (this instanceof Player && entity instanceof Missile){
-            
-            delete Player.list[this.socket.id].die(this.socket)
+            Player.list[this.socket.id].alive =false
             delete Entity.list[this.id]
         }else if (this instanceof Player && entity instanceof Player){
-            delete Player.list[this.socket.id].die(this.socket)
+            
+            Player.list[this.socket.id].alive = false
             delete Entity.list[this.id]
-            delete Player.list[entity.socket.id].die(this.socket)
-            delete Entity.list[entity.id]  
+            Player.list[entity.socket.id].alive = false
+            delete Entity.list[entity.id]
         }else if (this instanceof MapObject && entity instanceof Player){ // temp
             entity.reverseSpeed()
         } else if (entity instanceof Missile){
