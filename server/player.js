@@ -1,19 +1,24 @@
 module.exports = Player
-let Entity = require('./entity')
-let Missile = require('./missile')
-let spawnPoints = [{x:75,y:75}, {x:75, y:525},{x:1175,y:75}, {x:1175, y:525}]
+const Entity = require('./entity')
+const Missile = require('./missile')
+const MapObject = require('./mapobject')
+const GameMaster = require('./gameMaster')
+const spawnPoints = [{x:75,y:75}, {x:75, y:525},{x:1175,y:75}, {x:1175, y:525}]
 let spawnCount = 0
 
-function Player(socket, colour){
+function Player(socket, colour, gameid){
     spawn = spawnPoints[spawnCount]
     spawnCount >= 3 ? spawnCount = 0: spawnCount++
-    Entity.call(this, spawn.x, spawn.y, 10, 270)
+    Entity.call(this, spawn.x, spawn.y, 10, 270, gameid)
    
     this.socket = socket
     this.maxSpeed = 10
     this.reloaded = true
     this.colour = colour
     this.alive = true
+    
+    this.spawn = spawn
+    this.respawning = false
 
     this.width = 100
     this.height = 100
@@ -31,10 +36,11 @@ function Player(socket, colour){
     Player.list[socket.id] = this
 
     this.update = function(){
+        if(this.checkAlive()){
         this.updateSpd()
         this.applySpd()
         this.fireShot()
-        this.checkAlive()
+        }
     }
     this.applySpd = function(){
         this.x += this.speed * Math.cos(Math.PI/180 * this.directionAngle);
@@ -60,7 +66,7 @@ function Player(socket, colour){
 
     this.fireShot = function(){
         if(this.pressingAttack && this.reloaded){
-        new Missile(this.x, this.y, this.directionAngle)
+        new Missile(this.x, this.y, this.directionAngle, this.gameId)
         this.reloaded = false
         this.shotTimer()
         }
@@ -73,28 +79,39 @@ function Player(socket, colour){
     }
     
     this.checkAlive = function(){
+        
         if(!this.alive){
-            this.die()
+            if(!this.respawning) this.respawn(this.socket);
+            return false
         }
-    }
-
-    this.die = function(){
-        Player.respawn(this.socket)
-        Player.colour.push(Player.list[socket.id].colour)
-        delete Player.list[this.socket.id]
+        return true
     }
 
     this.reverseSpeed = function(){
         this.x += -this.speed * Math.cos(Math.PI/180 * this.directionAngle);
         this.y += -this.speed * Math.sin(Math.PI/180 * this.directionAngle);
     }
+
+    this.respawn = function(socket){
+        if(socket.connected){
+            this.respawning = true
+        setTimeout(() => {
+                this.x = this.spawn.x
+                this.y = this.spawn.y
+                this.respawning = false
+                this.alive = true
+        }, 2500);
+        }
+}
 }
 Player.list = {}
-Player.colour = [0,1,2,3]
 
-Player.onConnect = function(socket){
-    let player = new Player(socket,Player.colour[0])
-    Player.colour.shift()
+
+Player.onConnect = function(socket,gameid){
+    loadMap(socket)
+    const curGame = GameMaster.list[gameid]
+    let player = new Player(socket,curGame.colours[0], gameid)
+    curGame.colours.shift()
     socket.on('keyPress', function(packet){
         player = Player.list[socket.id]    
         if(player){
@@ -125,29 +142,32 @@ Player.onConnect = function(socket){
     })
 }
 
-Player.update = function(){
+function loadMap(socket){
+
+    let mapPacket = []
+    for(let i in MapObject.list){
+      mapPacket.push({x: MapObject.list[i].x, y:MapObject.list[i].y ,width:MapObject.list[i].width ,height:MapObject.list[i].height})
+    }
+    socket.emit('loadMap', mapPacket)
+  }
+
+Player.update = function(gameid){
     let pack = []
 
     for(let i in Player.list){
         const player = Player.list[i]
-        if(player){
+        if(player && player.gameId === gameid){
         player.update()
         
         pack.push({
             x: player.x,
             y: player.y,
             directionAngle: player.directionAngle,
-            colour: player.colour
+            colour: player.colour,
+            alive: player.alive
         })
     }
     }
     return pack
 }
 
-Player.respawn = function(socket){
-    setTimeout(() => {
-        if(socket.connected){
-        Player.onConnect(socket)
-        }
-    }, 2500);
-}

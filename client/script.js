@@ -18,7 +18,7 @@ const pinkTurret = document.querySelector("#pinkTurret")
 const missile = document.querySelector("#missile")
 const canvas = document.querySelector("#game")
 const ctx = canvas.getContext("2d");
-let curMap = []
+let curMap
 
 socket.on('loadMap', function(pack){    
     curMap = pack
@@ -40,6 +40,7 @@ socket.on('newPosition', function(pack){
     for(let i = 0; i<pack.player.length; i++){
         let tankBase 
         let tankTurret
+        if(pack.player[i].alive){
         switch(pack.player[i].colour) {
             case 0:
                 tankBase =blueTank
@@ -57,7 +58,15 @@ socket.on('newPosition', function(pack){
                 tankBase =pinkTank
                 tankTurret = pinkTurret
                 break
+            default:
+                tankBase = blueTank
+                tankTurret = blueTurret
+                break
         }
+    }else{
+        tankBase = missile
+        tankTurret= missile
+    }
         drawTank(tankBase, pack.player[i].x, pack.player[i].y, 100, 100, pack.player[i].directionAngle +90, tankTurret)
     }
 

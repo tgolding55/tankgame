@@ -2,14 +2,11 @@
 const express = require('express')
 const app = express();
 const server = require('http').createServer(app);
-let SOCKET_LIST = {}
+const SOCKET_LIST = {}
 
-let GameMaster = require('./server/gameMaster')
-let Player = require('./server/player')
-let Missile = require('./server/missile')
-let Entity = require('./server/entity')
-let MapObject = require('./server/mapobject')
-
+const GameMaster = require('./server/gameMaster')
+const Player = require('./server/player')
+const Entity = require('./server/entity')
 
 //routes
 app.get('/', function(req, res){
@@ -22,8 +19,6 @@ app.use('/client', express.static('client'))
 //server setup
 server.listen(3000, function(){
   console.log('listening on *:3000');
-
-  new GameMaster()
 });
 
 
@@ -32,16 +27,36 @@ const io = require('socket.io')(server)
 
 io.on('connection', function(socket){
      SOCKET_LIST[socket.id] = socket
+     let curGame
+     if(Object.keys(GameMaster.list).length === 0){
+      console.log("New game")
+      curGame = new GameMaster(socket.id)
+      curGame.startGame()
+     }else{
+       for(let game in GameMaster.list){
+         if(GameMaster.list[game].playerids.length < 4){
+           curGame = GameMaster.list[game]
+           GameMaster.list[game].playerids.push(socket.id)
+         }
+       }
+       if(!curGame){
+        console.log("Game full")
+        curGame = new GameMaster(socket.id)
+        curGame.startGame()
+       }
+     }
+    
 
-     Player.onConnect(socket)
-     loadMap(socket)
-     console.log('user connected')
      
+
+     Player.onConnect(socket, curGame.id)
+     console.log('user connected')
     socket.on('disconnect', function(){
         delete SOCKET_LIST[socket.id]
-
         if(Player.list[socket.id]){
-        Player.colour.push(Player.list[socket.id].colour)
+        const curGame = GameMaster.list[Player.list[socket.id].gameId]
+        curGame.colour.push(Player.list[socket.id].colour)
+        curGame.removePlayer(Player.list[socket.id].socket.id)
         delete Entity.list[Player.list[socket.id].id]
         delete Player.list[socket.id]
         }
@@ -51,30 +66,3 @@ io.on('connection', function(socket){
     });
   });
 
-  //packet management
-
-
-  function loadMap(socket){
-
-    let mapPacket = []
-    for(let i in MapObject.list){
-      mapPacket.push({x: MapObject.list[i].x, y:MapObject.list[i].y ,width:MapObject.list[i].width ,height:MapObject.list[i].height})
-    }
-    socket.emit('loadMap', mapPacket)
-  }
-  
-  setInterval(function(){
-      Entity.checkAllCollisions()
-      let pack ={
-          player:Player.update(),
-          missile:Missile.update()
-      }
-
-      for(let i in SOCKET_LIST){
-          const socket = SOCKET_LIST[i]
-          socket.emit('newPosition',pack)
-      }
-  },1000/25)
-
-  
-  

@@ -1,9 +1,9 @@
 module.exports = MapObject
-let Entity = require('./entity')
+const Entity = require('./entity')
 
-function MapObject(x,y,width,height){
+function MapObject(x,y,width,height,gameid){
 
-    Entity.call(this, x, y, 0, 0)
+    Entity.call(this, x, y, 0, 0,gameid)
     this.width = width
     this.height = height
 

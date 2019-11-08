@@ -1,11 +1,12 @@
 module.exports = Entity
-let Player = require('./player')
-let Missile = require('./missile')
-let MapObject = require('./mapobject')
+const Player = require('./player')
+const Missile = require('./missile')
+const MapObject = require('./mapobject')
 
 let count = 0
-function Entity(x,y,speed,directionAngle){
+function Entity(x,y,speed,directionAngle, gameid){
     this.id = count
+    this.gameId = gameid
     
     this.collidable = true
     this.x = x
@@ -20,7 +21,7 @@ function Entity(x,y,speed,directionAngle){
 
     this.checkCollision = function(){
         for(let index in Entity.list){
-            if(Entity.list[index] !== this && Entity.list[index].collidable === true && this.collidable === true){
+            if(Entity.list[index] !== this && Entity.list[index].collidable === true && this.collidable === true && this.gameId === Entity.list[index].gameId){
                
                 if(Entity.list[index].x > this.x-this.width/2 && Entity.list[index].x < this.x+this.width/2 && Entity.list[index].y > this.y-this.height/2 && Entity.list[index].y < this.y+this.height/2){
                     this.collide(Entity.list[index])
@@ -46,13 +47,12 @@ function Entity(x,y,speed,directionAngle){
     this.collide = function(entity){
         if (this instanceof Player && entity instanceof Missile){
             Player.list[this.socket.id].alive =false
-            delete Entity.list[this.id]
         }else if (this instanceof Player && entity instanceof Player){
-            
+
             Player.list[this.socket.id].alive = false
-            delete Entity.list[this.id]
+            
             Player.list[entity.socket.id].alive = false
-            delete Entity.list[entity.id]
+            
         }else if (this instanceof MapObject && entity instanceof Player){ // temp
             entity.reverseSpeed()
         } else if (entity instanceof Missile){
@@ -74,6 +74,7 @@ Entity.checkAllCollisions = function(){
         Entity.list[index].checkCollision()
     }
 }
+
 
 
 
