@@ -103,14 +103,24 @@ function Player(socket, colour, gameid){
         }, 2500);
         }
 }
+this.loadMap = function(socket){
+
+    let mapPacket = []
+    for(let i in MapObject.list){
+        if(MapObject.list[i].gameId === this.gameId)
+      mapPacket.push({x: MapObject.list[i].x, y:MapObject.list[i].y ,width:MapObject.list[i].width ,height:MapObject.list[i].height})
+    }
+    socket.emit('loadMap', mapPacket)
+  }
+
 }
 Player.list = {}
 
 
 Player.onConnect = function(socket,gameid){
-    loadMap(socket)
     const curGame = GameMaster.list[gameid]
     let player = new Player(socket,curGame.colours[0], gameid)
+    player.loadMap(socket)
     curGame.colours.shift()
     socket.on('keyPress', function(packet){
         player = Player.list[socket.id]    
@@ -142,14 +152,6 @@ Player.onConnect = function(socket,gameid){
     })
 }
 
-function loadMap(socket){
-
-    let mapPacket = []
-    for(let i in MapObject.list){
-      mapPacket.push({x: MapObject.list[i].x, y:MapObject.list[i].y ,width:MapObject.list[i].width ,height:MapObject.list[i].height})
-    }
-    socket.emit('loadMap', mapPacket)
-  }
 
 Player.update = function(gameid){
     let pack = []

@@ -26,6 +26,7 @@ server.listen(3000, function(){
 const io = require('socket.io')(server)
 
 io.on('connection', function(socket){
+   
      SOCKET_LIST[socket.id] = socket
      let curGame
      if(Object.keys(GameMaster.list).length === 0){
@@ -44,7 +45,7 @@ io.on('connection', function(socket){
         curGame = new GameMaster(socket.id)
         curGame.startGame()
        }
-     }
+     } console.log(socket)
     
 
      
@@ -55,7 +56,7 @@ io.on('connection', function(socket){
         delete SOCKET_LIST[socket.id]
         if(Player.list[socket.id]){
         const curGame = GameMaster.list[Player.list[socket.id].gameId]
-        curGame.colour.push(Player.list[socket.id].colour)
+        curGame.colours.push(Player.list[socket.id].colour)
         curGame.removePlayer(Player.list[socket.id].socket.id)
         delete Entity.list[Player.list[socket.id].id]
         delete Player.list[socket.id]

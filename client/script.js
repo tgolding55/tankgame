@@ -58,10 +58,7 @@ socket.on('newPosition', function(pack){
                 tankBase =pinkTank
                 tankTurret = pinkTurret
                 break
-            default:
-                tankBase = blueTank
-                tankTurret = blueTurret
-                break
+    
         }
     }else{
         tankBase = missile

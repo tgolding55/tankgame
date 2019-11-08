@@ -7,10 +7,6 @@ const MapObject = require('./mapobject')
 let count = 0
 let gameTickId
 
-//handle map
-//handle packets
-//packets dont specify only updating per game instance
-
 function GameMaster(socketid){
     this.id = count
     this.playerids = [socketid]
